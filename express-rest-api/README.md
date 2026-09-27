@@ -1,40 +1,68 @@
-# Notes REST API
+# Notes REST API — Authentication
 
-A RESTful Notes API built with **Node.js and Express**.
+A RESTful Notes API with **JWT authentication**, password hashing, validation, and user-specific note ownership.
 
 ## Features
 
-* RESTful resource-oriented URLs
-* CRUD operations using HTTP verbs
+* User registration with hashed passwords using `bcryptjs`
+* User login with JWT
+* Protected Notes API using `requireAuth`
+* Users can access only their own notes
+* Input validation with `express-validator`
+* Consistent error handling with `AppError`
+* Pagination, filtering, searching, and sorting
+* CORS and rate limiting
 * API versioning with `/api/v1`
-* Pagination using `limit` and `offset`
-* Filtering, searching, and sorting with query parameters
-* Input validation using `express-validator`
-* Consistent error response format
-* Custom `AppError` with status codes
-* Centralized error handling
-* Request logging with response time
-* CORS restricted to `http://localhost:3000`
-* Rate limiting using `express-rate-limit`
+
+## Approach
+
+1. **Register** → Validate user data → Hash password → Store user.
+2. **Login** → Find user → Compare hashed password → Generate JWT.
+3. **Authentication** → `requireAuth` verifies the JWT and stores user information in `req.user`.
+4. **Authorization** → Notes are stored with a `userId`, and every note operation checks `note.userId === req.user.userId`.
+5. **Error handling** → Authentication and application errors are passed to the central error handler with appropriate status codes.
+
+## Authentication Flow
+
+```text
+Register
+   ↓
+Hash Password
+   ↓
+Create User
+
+Login
+   ↓
+Verify Password
+   ↓
+Generate JWT
+   ↓
+Bearer Token
+
+Protected Request
+   ↓
+requireAuth
+   ↓
+Verify JWT
+   ↓
+req.user
+   ↓
+Check note.userId
+   ↓
+Allow/Deny
+```
 
 ## Endpoints
 
-| Method | Endpoint            | Description   |
-| ------ | ------------------- | ------------- |
-| GET    | `/api/v1/notes`     | Get notes     |
-| GET    | `/api/v1/notes/:id` | Get a note    |
-| POST   | `/api/v1/notes`     | Create a note |
-| PUT    | `/api/v1/notes/:id` | Update a note |
-| DELETE | `/api/v1/notes/:id` | Delete a note |
-
-## Query Examples
-
-```text
-/api/v1/notes?limit=2&offset=0
-/api/v1/notes?category=backend
-/api/v1/notes?search=node
-/api/v1/notes?sortBy=title&order=asc
-```
+| Method | Endpoint            | Auth     |
+| ------ | ------------------- | -------- |
+| POST   | `/auth/register`    | No       |
+| POST   | `/auth/login`       | No       |
+| GET    | `/api/v1/notes`     | Required |
+| GET    | `/api/v1/notes/:id` | Required |
+| POST   | `/api/v1/notes`     | Required |
+| PUT    | `/api/v1/notes/:id` | Required |
+| DELETE | `/api/v1/notes/:id` | Required |
 
 ## Setup
 
@@ -43,12 +71,16 @@ npm install
 npm start
 ```
 
-Server:
+Create `.env`:
 
-```text
-http://localhost:5000
+```env
+PORT=5000
+JWT_SECRET=my_super_secret_key
+JWT_EXPIRES_IN=1h
 ```
 
-## Validation & Errors
+For protected requests, send:
 
-Validation errors return `422`, missing resources return `404`, conflicts return `409`, and unexpected errors return `500` usi
+```http
+Authorization: Bearer <JWT_TOKEN>
+```

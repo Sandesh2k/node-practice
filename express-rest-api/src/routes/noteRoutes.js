@@ -8,6 +8,7 @@ const {
   deleteNote
 } = require("../controllers/noteController");
 
+const requireAuth = require("../middleware/requireAuth");
 const validate = require("../middleware/validate");
 
 const {
@@ -19,6 +20,10 @@ const {
 
 const router = express.Router();
 
+// Every notes route requires authentication
+router.use(requireAuth);
+
+// GET /api/v1/notes
 router.get(
   "/",
   listNotesValidation,
@@ -26,6 +31,7 @@ router.get(
   getAllNotes
 );
 
+// GET /api/v1/notes/:id
 router.get(
   "/:id",
   idValidation,
@@ -33,12 +39,15 @@ router.get(
   getNoteById
 );
 
+// POST /api/v1/notes
 router.post(
   "/",
   createNoteValidation,
   validate,
   createNote
 );
+
+// PUT /api/v1/notes/:id
 router.put(
   "/:id",
   updateNoteValidation,
@@ -46,6 +55,7 @@ router.put(
   updateNote
 );
 
+// DELETE /api/v1/notes/:id
 router.delete(
   "/:id",
   idValidation,

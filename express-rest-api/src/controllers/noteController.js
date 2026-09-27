@@ -1,8 +1,11 @@
 const notes = require("../data/notes");
 const AppError = require("../errors/AppError");
 
+// GET /api/v1/notes
 const getAllNotes = (req, res) => {
-  let result = [...notes];
+  let result = notes.filter(
+    (note) => note.userId === req.user.userId
+  );
 
   const {
     limit = 10,
@@ -13,6 +16,7 @@ const getAllNotes = (req, res) => {
     order = "asc"
   } = req.query;
 
+  // Filtering
   if (category) {
     result = result.filter(
       (note) =>
@@ -20,6 +24,7 @@ const getAllNotes = (req, res) => {
     );
   }
 
+  // Searching
   if (search) {
     const searchTerm = search.toLowerCase();
 
@@ -51,7 +56,6 @@ const getAllNotes = (req, res) => {
     return 0;
   });
 
-  // Pagination
   const total = result.length;
 
   const paginatedNotes = result.slice(
@@ -75,7 +79,11 @@ const getAllNotes = (req, res) => {
 const getNoteById = (req, res, next) => {
   const id = Number(req.params.id);
 
-  const note = notes.find((note) => note.id === id);
+  const note = notes.find(
+    (note) =>
+      note.id === id &&
+      note.userId === req.user.userId
+  );
 
   if (!note) {
     return next(new AppError("Note not found", 404));
@@ -89,16 +97,24 @@ const getNoteById = (req, res, next) => {
 
 // POST /api/v1/notes
 const createNote = (req, res, next) => {
-  const { title, content, category = "general" } = req.body;
+  const {
+    title,
+    content,
+    category = "general"
+  } = req.body;
 
-  // Conflict check
   const duplicate = notes.find(
-    (note) => note.title.toLowerCase() === title.toLowerCase()
+    (note) =>
+      note.userId === req.user.userId &&
+      note.title.toLowerCase() === title.toLowerCase()
   );
 
   if (duplicate) {
     return next(
-      new AppError("A note with this title already exists", 409)
+      new AppError(
+        "You already have a note with this title",
+        409
+      )
     );
   }
 
@@ -106,6 +122,8 @@ const createNote = (req, res, next) => {
     id: notes.length
       ? Math.max(...notes.map((note) => note.id)) + 1
       : 1,
+
+    userId: req.user.userId,
     title,
     content,
     category,
@@ -124,23 +142,35 @@ const createNote = (req, res, next) => {
 const updateNote = (req, res, next) => {
   const id = Number(req.params.id);
 
-  const note = notes.find((note) => note.id === id);
+  const note = notes.find(
+    (note) =>
+      note.id === id &&
+      note.userId === req.user.userId
+  );
 
   if (!note) {
     return next(new AppError("Note not found", 404));
   }
 
-  const { title, content, category = note.category } = req.body;
+  const {
+    title,
+    content,
+    category = note.category
+  } = req.body;
 
   const duplicate = notes.find(
     (item) =>
+      item.userId === req.user.userId &&
       item.id !== id &&
       item.title.toLowerCase() === title.toLowerCase()
   );
 
   if (duplicate) {
     return next(
-      new AppError("A note with this title already exists", 409)
+      new AppError(
+        "You already have a note with this title",
+        409
+      )
     );
   }
 
@@ -158,7 +188,11 @@ const updateNote = (req, res, next) => {
 const deleteNote = (req, res, next) => {
   const id = Number(req.params.id);
 
-  const index = notes.findIndex((note) => note.id === id);
+  const index = notes.findIndex(
+    (note) =>
+      note.id === id &&
+      note.userId === req.user.userId
+  );
 
   if (index === -1) {
     return next(new AppError("Note not found", 404));
@@ -166,7 +200,6 @@ const deleteNote = (req, res, next) => {
 
   notes.splice(index, 1);
 
-  // 204 = successful deletion, no response body
   res.status(204).send();
 };
 
