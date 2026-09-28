@@ -19,7 +19,7 @@ app.use(express.json());
 // CORS
 app.use(
   cors({
-    origin: "http://localhost:3000"
+    origin: "http://localhost:5000"
   })
 );
 
@@ -31,14 +31,7 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 100,
   standardHeaders: "draft-8",
-  legacyHeaders: false,
-  message: {
-    success: false,
-    error: {
-      statusCode: 429,
-      message: "Too many requests, please try again later."
-    }
-  }
+  legacyHeaders: false
 });
 
 app.use(limiter);

@@ -217,9 +217,53 @@ note.userId === req.user.userId
 
 This ensures that users can only read or modify their own notes.
 
+---
 
+### 8. Upload Image Attachment
+
+An authenticated user can upload an image to their own note:
+``` text 
+POST /api/v1/notes/:id/attachment
+```
+**Screenshot:**
+
+`add.image.png`
+
+![Add Image](./add-image.png)
 
 ---
+
+### 9. File Type Validation
+
+Only the following image formats are allowed:
+
+
+``` text 
+.jpg
+.jpeg
+.png
+```
+**Screenshot:**
+
+`allowed-extensions.png`
+
+![Allowed Extensions](./allowed-extensions.png)
+
+---
+
+### 10. File Size Validation
+
+Uploaded images must not exceed 2 MB.
+
+**Screenshot:**
+
+`exceeds2mb.png`
+
+![Exceeds 2 mb](./exceeds2mb.png)
+
+---
+
+
 
 ## Project Structure
 
@@ -239,10 +283,13 @@ notes-api/
 │   │   ├── logger.js
 │   │   ├── notFound.js
 │   │   ├── requireAuth.js
+│   │   ├── upload.js
 │   │   └── validate.js
 │   ├── routes/
 │   │   ├── authRoutes.js
 │   │   └── noteRoutes.js
+│   ├── uploads/
+│   │   └── .gitkeep
 │   ├── validators/
 │   │   ├── authValidator.js
 │   │   └── noteValidator.js
@@ -254,13 +301,13 @@ notes-api/
 │   ├── u2-accessing.png
 │   ├── invalid-token.png
 │   ├── no-auth-access.png
-│   └── create-note.png
+│   ├── create-note.png
+│   ├── add-image.png
+│   ├── allowed-extensions.png
+│   └── exceeds2mb.png
 ├── .env
 ├── .gitignore
 ├── package.json
 └── README.md
 ```
 
-## Note
-
-This project currently uses **in-memory storage** for users and notes. Data will be reset whenever the server restarts. A database such as MongoDB or PostgreSQL can be added later without changing the authentication flow significantly.

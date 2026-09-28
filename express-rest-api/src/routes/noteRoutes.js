@@ -5,11 +5,14 @@ const {
   getNoteById,
   createNote,
   updateNote,
-  deleteNote
+  deleteNote,
+  uploadAttachment,
+  getAttachment
 } = require("../controllers/noteController");
 
 const requireAuth = require("../middleware/requireAuth");
 const validate = require("../middleware/validate");
+const upload = require("../middleware/upload");
 
 const {
   createNoteValidation,
@@ -62,5 +65,23 @@ router.delete(
   validate,
   deleteNote
 );
+
+// Upload attachment
+router.post(
+  "/:id/attachment",
+  idValidation,
+  validate,
+  upload.single("image"),
+  uploadAttachment
+);
+
+// Get attachment
+router.get(
+  "/:id/attachment",
+  idValidation,
+  validate,
+  getAttachment
+);
+
 
 module.exports = router;
