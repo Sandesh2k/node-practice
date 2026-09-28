@@ -103,7 +103,7 @@ The password is hashed before storing the user.
 
 `u2-register.png`
 
-![User Registration](./u2-register.png)
+![User Registration](./screenshots/u2-register.png)
 
 ---
 
@@ -121,7 +121,7 @@ A JWT token is returned after successful authentication.
 
 `u2-login.png`
 
-![User Login](./u2-login.png)
+![User Login](./screenshots//u2-login.png)
 
 ---
 
@@ -138,7 +138,7 @@ Authorization: Bearer <JWT>
 
 `u2-accessing.png`
 
-![Authenticated Notes Access](./u2-accessing.png)
+![Authenticated Notes Access](./screenshots//u2-accessing.png)
 
 ---
 
@@ -168,7 +168,7 @@ Example:
 
 `create-note.png`
 
-![Create Note](./create-note.png)
+![Create Note](./screenshots/create-note.png)
 
 ---
 
@@ -184,7 +184,7 @@ Trying to access the Notes API without authentication returns:
 
 `no-auth-access.png`
 
-![Authentication Required](./no-auth-access.png)
+![Authentication Required](./screenshots/no-auth-access.png)
 
 ---
 
@@ -201,7 +201,7 @@ Invalid or expired token
 
 `invalid-token.png`
 
-![Invalid Token](./invalid-token.png)
+![Invalid Token](./screenshots//invalid-token.png)
 
 ---
 
@@ -219,6 +219,8 @@ This ensures that users can only read or modify their own notes.
 
 ---
 
+## File upload endpoint
+
 ### 8. Upload Image Attachment
 
 An authenticated user can upload an image to their own note:
@@ -229,7 +231,7 @@ POST /api/v1/notes/:id/attachment
 
 `add.image.png`
 
-![Add Image](./add-image.png)
+![Add Image](./screenshots/add-image.png)
 
 ---
 
@@ -247,7 +249,7 @@ Only the following image formats are allowed:
 
 `allowed-extensions.png`
 
-![Allowed Extensions](./allowed-extensions.png)
+![Allowed Extensions](./screenshots/allowed-extensions.png)
 
 ---
 
@@ -259,16 +261,42 @@ Uploaded images must not exceed 2 MB.
 
 `exceeds2mb.png`
 
-![Exceeds 2 mb](./exceeds2mb.png)
+![Exceeds 2 mb](./screenshots/exceeds2mb.png)
 
 ---
 
+## API Test Suite
+
+Added automated API tests using Vitest and Supertest.
+
+### 11. Test Result
+
+
+
+**Screenshot:**
+1. Register → Login → Create Note → Read Note
+
+Added an automated test using Vitest + Supertest to verify the complete authentication and notes flow: user registration, login with JWT generation, authenticated note creation, and reading the created note using the returned JWT token. The test successfully completes the full flow with the expected 201 and 200 responses.
+![Test 1](./screenshots/test-1.png)
+
+2. Reject Requests Without a Valid Token
+
+Added tests to verify that protected Notes API endpoints reject unauthenticated requests and requests containing an invalid JWT. Both scenarios correctly return 401 Unauthorized, confirming that the requireAuth middleware protects the API.
+![Test 2](./screenshots/test-2.png)
+
+3. Reject Other Users' Notes
+
+Added an authorization test where User 1 creates a private note and User 2 attempts to access it. The API correctly rejects the request with 404 Note not found, confirming that users can only access notes belonging to their own account.
+![Test 3](./screenshots/test-3.png)
+
+
+---
 
 
 ## Project Structure
 
 ```text
-notes-api/
+express-rest   -api/
 ├── src/
 │   ├── controllers/
 │   │   ├── authController.js
@@ -295,6 +323,10 @@ notes-api/
 │   │   └── noteValidator.js
 │   ├── app.js
 │   └── server.js
+│
+├── tests/
+│   └── notes.test.js
+│
 ├── screenshots/
 │   ├── u2-register.png
 │   ├── u2-login.png
@@ -302,9 +334,13 @@ notes-api/
 │   ├── invalid-token.png
 │   ├── no-auth-access.png
 │   ├── create-note.png
+│   ├── test-1.png
+│   ├── test-2.png
+│   ├── test-3.png
 │   ├── add-image.png
 │   ├── allowed-extensions.png
 │   └── exceeds2mb.png
+│
 ├── .env
 ├── .gitignore
 ├── package.json
