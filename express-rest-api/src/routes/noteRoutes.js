@@ -7,7 +7,8 @@ const {
   updateNote,
   deleteNote,
   uploadAttachment,
-  getAttachment
+  getAttachment,
+  getNoteStats
 } = require("../controllers/noteController");
 
 const requireAuth = require("../middleware/requireAuth");
@@ -22,6 +23,9 @@ const {
 } = require("../validators/noteValidator");
 
 const router = express.Router();
+
+
+router.get("/stats", requireAuth, getNoteStats);
 
 // Every notes route requires authentication
 router.use(requireAuth);
@@ -82,6 +86,7 @@ router.get(
   validate,
   getAttachment
 );
+
 
 
 module.exports = router;
