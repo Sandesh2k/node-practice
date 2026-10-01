@@ -53,4 +53,7 @@ const trimTitle = function () {
 noteSchema.pre("validate", trimTitle);
 noteSchema.pre("save", trimTitle);
 
+noteSchema.index({ title: "text" });
+noteSchema.index({ owner: 1, createdAt: -1 });
+
 module.exports = mongoose.model("Note", noteSchema);

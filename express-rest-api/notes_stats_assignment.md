@@ -174,10 +174,6 @@ The response includes:
 ✓ Single aggregation pipeline using $facet
 ```
 
-### Final Screenshot
-
-![Stats Endpoint](stats3.png)
-
 ---
 
 # Conclusion
